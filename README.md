@@ -3,7 +3,8 @@
 A clean and hackathon-ready Android app using **MediaPipe Pose Landmarker** with custom UI and camera support.
 
 ## Project Structure
-
+```
+```
 pose-landmarker-android/
 │── app/
 │ ├── src/
@@ -33,7 +34,8 @@ pose-landmarker-android/
 ├── gradlew.bat
 ├── .gitignore
 └── README.md
-
+```
+```
 
 ## How to Build & Run
 
