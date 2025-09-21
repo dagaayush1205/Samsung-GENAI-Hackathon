@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ~ Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+    ~
+    ~ Licensed under the Apache License, Version 2.0 (the "License");
+    ~ you may not use this file except in compliance with the License.
+    ~ You may obtain a copy of the License at
+    ~
+    ~      http://www.apache.org/licenses/LICENSE-2.0
+    ~
+    ~ Unless required by applicable law or agreed to in writing, software
+    ~ distributed under the License is distributed on an "AS IS" BASIS,
+    ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    ~ See the License for the specific language governing permissions and
+    ~ limitations under the License.
+-->
+
+<!-- The root layout is changed to RelativeLayout for easier placement of UI elements -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/camera_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- These are the original, core views. They remain unchanged. -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/view_finder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:scaleType="fillStart" />
+
+    <com.google.mediapipe.examples.poselandmarker.OverlayView
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- DELETED: The <include> for the bottom sheet has been removed. -->
+
+    <!-- =================================================================== -->
+    <!-- =================== NEW UI ELEMENTS ADDED HERE ==================== -->
+    <!-- =================================================================== -->
+
+    <!-- Container for Watch Data (Top Left) -->
+    <!-- This is where your Samsung Health SDK data will go -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:background="#66000000"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:elevation="8dp">
+
+        <!-- Heart Rate Display -->
+        <TextView
+            android:id="@+id/heart_rate_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_heart"
+            android:drawablePadding="8dp"
+            android:gravity="center"
+            android:text="-- BPM"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:drawableTint="@android:color/white" />
+
+        <!-- Workout Timer -->
+        <TextView
+            android:id="@+id/workout_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="00:00"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <!-- Container for AI Feedback (Bottom Center) -->
+    <!-- This TextView will be updated by the new logic in CameraFragment.kt -->
+    <TextView
+        android:id="@+id/ai_feedback_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="48dp"
+        android:background="#991DB954"
+        android:elevation="8dp"
+        android:padding="16dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:text="Keep your back straight!"
+        tools:visibility="visible" />
+
+</RelativeLayout>
+
