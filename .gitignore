@@ -1,0 +1,21 @@
+# Gradle & build outputs
+.gradle/
+build/
+*/build/
+
+# Android Studio
+.idea/
+*.iml
+
+# Local configuration
+local.properties
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: exclude MediaPipe model downloads if large
+app/src/main/assets/*.task
