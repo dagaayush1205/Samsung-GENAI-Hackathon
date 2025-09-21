@@ -4,37 +4,37 @@ A clean and hackathon-ready Android app using **MediaPipe Pose Landmarker** with
 
 ## Project Structure
 ```
-```
+
+## Project Structure
+
 pose-landmarker-android/
-│── app/
-│ ├── src/
-│ │ ├── main/
-│ │ │ ├── code/ # Kotlin source files
-│ │ │ │ └── poselandmarker/
-│ │ │ │ ├── MainActivity.kt
-│ │ │ │ ├── WorkoutActivity.kt
-│ │ │ │ ├── SplashActivity.kt
-│ │ │ │ ├── OverlayView.kt
-│ │ │ │ ├── MainViewModel.kt
-│ │ │ │ ├── PoseLandmarkerHelper.kt
-│ │ │ │ └── fragment/ # Fragments
-│ │ │ ├── res/ # Layouts, drawables, values
-│ │ │ └── AndroidManifest.xml
-│ │ ├── androidTest/
-│ │ └── test/
-│ ├── build.gradle
-│ ├── proguard-rules.pro
-│ └── download_tasks.gradle
-│
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── code/
+│   │   │   │   └── poselandmarker/
+│   │   │   │       ├── MainActivity.kt
+│   │   │   │       ├── WorkoutActivity.kt
+│   │   │   │       ├── SplashActivity.kt
+│   │   │   │       ├── OverlayView.kt
+│   │   │   │       ├── MainViewModel.kt
+│   │   │   │       ├── PoseLandmarkerHelper.kt
+│   │   │   │       └── fragment/
+│   │   │   ├── res/
+│   │   │   └── AndroidManifest.xml
+│   │   ├── androidTest/
+│   │   └── test/
+│   ├── build.gradle
+│   ├── proguard-rules.pro
+│   └── download_tasks.gradle
 ├── gradle/
-├── build.gradle # Project-level
+├── build.gradle
 ├── gradle.properties
 ├── settings.gradle
 ├── gradlew
 ├── gradlew.bat
 ├── .gitignore
 └── README.md
-```
 ```
 
 ## How to Build & Run
