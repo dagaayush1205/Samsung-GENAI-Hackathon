@@ -1,4 +1,19 @@
-package poselandmarker.fragment
+/*
+ * Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.mediapipe.examples.poselandmarker.fragment
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -13,21 +28,24 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.google.mediapipe.examples.poselandmarker.MainViewModel
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
 import com.google.mediapipe.examples.poselandmarker.R
+import com.google.mediapipe.examples.poselandmarker.data.AppDatabase
+import com.google.mediapipe.examples.poselandmarker.data.WorkoutSession
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentCameraBinding
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.atan2
-import kotlin.math.sqrt
-
-// ADDED THIS IMPORT
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 
 class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
@@ -36,9 +54,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
-
-    private val fragmentCameraBinding
-        get() = _fragmentCameraBinding!!
+    private val fragmentCameraBinding get() = _fragmentCameraBinding!!
 
     private lateinit var poseLandmarkerHelper: PoseLandmarkerHelper
     private val viewModel: MainViewModel by activityViewModels()
@@ -46,10 +62,15 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_FRONT // Default to front camera for workout
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
 
-    /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
+
+    // --- NEW VARIABLES FOR REP COUNTING ---
+    private var repCount = 0
+    private var pushupState = "up" // Can be "up" or "down"
+    private var formScoreAccumulator = 0.0
+    private var formScoreSamples = 0
 
     override fun onResume() {
         super.onResume()
@@ -75,7 +96,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             viewModel.setMinPoseTrackingConfidence(poseLandmarkerHelper.minPoseTrackingConfidence)
             viewModel.setMinPosePresenceConfidence(poseLandmarkerHelper.minPosePresenceConfidence)
             viewModel.setDelegate(poseLandmarkerHelper.currentDelegate)
-
             backgroundExecutor.execute { poseLandmarkerHelper.clearPoseLandmarker() }
         }
     }
@@ -83,7 +103,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     override fun onDestroyView() {
         _fragmentCameraBinding = null
         super.onDestroyView()
-
         backgroundExecutor.shutdown()
         backgroundExecutor.awaitTermination(
             Long.MAX_VALUE, TimeUnit.NANOSECONDS
@@ -97,7 +116,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     ): View {
         _fragmentCameraBinding =
             FragmentCameraBinding.inflate(inflater, container, false)
-
         return fragmentCameraBinding.root
     }
 
@@ -123,13 +141,19 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             )
         }
 
-        // --- DELETED --- We have removed the bottom sheet, so this is no longer needed.
-        // initBottomSheetControls()
+        // --- ADDED CLICK LISTENER HERE (CLEANED UP) ---
+        fragmentCameraBinding.finishWorkoutButton.setOnClickListener {
+            // Calculate the final average score
+            val finalScore = if (formScoreSamples > 0) (formScoreAccumulator / formScoreSamples).toInt() else 100
+
+            // Save the workout session with the ACTUAL rep count and score
+            saveWorkoutSession("Push-ups", repCount, finalScore)
+
+            // Close the workout screen
+            activity?.finish()
+        }
     }
 
-    // --- DELETED --- The entire initBottomSheetControls() function has been removed.
-
-    // Initialize CameraX, and prepare to bind the camera use cases
     private fun setUpCamera() {
         val cameraProviderFuture =
             ProcessCameraProvider.getInstance(requireContext())
@@ -197,8 +221,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     ) {
         activity?.runOnUiThread {
             if (_fragmentCameraBinding != null) {
-                // --- THIS CODE IS PART OF THE ORIGINAL FILE AND IS KEPT ---
-                // Pass necessary information to OverlayView for drawing on the canvas
                 fragmentCameraBinding.overlay.setResults(
                     resultBundle.results.first(),
                     resultBundle.inputImageHeight,
@@ -206,23 +228,21 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                     RunningMode.LIVE_STREAM
                 )
 
-                // --- NEW LOGIC ADDED HERE ---
-                // 1. Analyze the landmarks from resultBundle.results.first()
-                if(resultBundle.results.first().landmarks().isNotEmpty()) {
-                    val formResult = checkPushupForm(resultBundle.results.first())
+                if (resultBundle.results.first().landmarks().isNotEmpty()) {
+                    val formResult = checkPushupFormAndCountReps(resultBundle.results.first())
 
-                    // 2. Update the AI Feedback TextView based on the analysis
+                    // Update the form score accumulator
+                    formScoreAccumulator += if (formResult.isCorrect) 100.0 else 0.0
+                    formScoreSamples++
+
                     if (formResult.isCorrect) {
-                        // If form is correct, hide the feedback box
                         fragmentCameraBinding.aiFeedbackText.visibility = View.GONE
                     } else {
-                        // If form is incorrect, show the feedback and update the text
                         fragmentCameraBinding.aiFeedbackText.text = formResult.feedbackMessage
                         fragmentCameraBinding.aiFeedbackText.visibility = View.VISIBLE
                     }
                 }
 
-                // Force a redraw of the overlay
                 fragmentCameraBinding.overlay.invalidate()
             }
         }
@@ -234,7 +254,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
     }
 
-    // --- NEW HELPER FUNCTION AND DATA CLASS ADDED HERE ---
     private fun getAngle(
         p1: NormalizedLandmark,
         p2: NormalizedLandmark,
@@ -244,42 +263,58 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             (atan2(p3.y() - p2.y(), p3.x() - p2.x()) -
                     atan2(p1.y() - p2.y(), p1.x() - p2.x())).toDouble()
         )
-        // Ensure angle is positive
         return if (angle < 0) angle + 360 else angle
     }
 
-    private fun checkPushupForm(poseLandmarkerResult: PoseLandmarkerResult): FormResult {
+    // --- UPDATED LOGIC TO ACTUALLY COUNT REPS ---
+    private fun checkPushupFormAndCountReps(poseLandmarkerResult: PoseLandmarkerResult): FormResult {
         val landmarks = poseLandmarkerResult.landmarks().first()
 
-        // Landmark indices for push-up form analysis
         val leftShoulder = landmarks[11]
         val leftElbow = landmarks[13]
         val leftWrist = landmarks[15]
         val leftHip = landmarks[23]
         val leftKnee = landmarks[25]
 
-        // 1. Check elbow angle for push-up depth
         val elbowAngle = getAngle(leftShoulder, leftElbow, leftWrist)
-        if (elbowAngle > 160) {
-            return FormResult(false, "Lower your body more.")
-        }
-        if (elbowAngle < 70) {
-             // This can be a successful repetition
+        val hipAngle = getAngle(leftShoulder, leftHip, leftKnee)
+
+        // State machine for counting reps
+        if (elbowAngle < 90 && hipAngle > 150) { // User is in the "down" position with a straight back
+            if (pushupState == "up") {
+                pushupState = "down"
+            }
+        } else if (elbowAngle > 160 && hipAngle > 150) { // User is in the "up" position with a straight back
+            if (pushupState == "down") {
+                repCount++
+                fragmentCameraBinding.repCountText.text = "Reps: $repCount"
+                pushupState = "up"
+            }
         }
 
-        // 2. Check for straight back (hip angle)
-        val hipAngle = getAngle(leftShoulder, leftHip, leftKnee)
-        if (hipAngle < 160) {
-            return FormResult(false, "Keep your back straight, don't drop your hips!")
+        // Form checking logic
+        if (hipAngle < 150) {
+            return FormResult(false, "Keep your back straight! Don't drop your hips.")
         }
         if (hipAngle > 195) {
-            return FormResult(false, "Keep your back straight, don't raise your hips!")
+            return FormResult(false, "Keep your back straight! Don't raise your hips.")
         }
 
-        // If all checks pass, the form is considered correct
         return FormResult(isCorrect = true, feedbackMessage = "Great Form!")
     }
 
     data class FormResult(val isCorrect: Boolean, val feedbackMessage: String)
-}
 
+    private fun saveWorkoutSession(exercise: String, reps: Int, score: Int) {
+        val dao = AppDatabase.getDatabase(requireContext()).workoutDao()
+        val session = WorkoutSession(
+            date = Date(),
+            exerciseType = exercise,
+            reps = reps,
+            score = score
+        )
+        lifecycleScope.launch(Dispatchers.IO) {
+            dao.insert(session)
+        }
+    }
+}

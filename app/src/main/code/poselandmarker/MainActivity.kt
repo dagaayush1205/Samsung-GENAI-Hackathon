@@ -1,8 +1,9 @@
-package poselandmarker
+package com.google.mediapipe.examples.poselandmarker
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -14,13 +15,13 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.startButton.setOnClickListener {
-            // This is where you will launch the actual workout activity/camera screen
-            // In the original example, this might be called 'MainActivity' as well,
-            // so you might need to rename that one to 'WorkoutActivity'
-            val intent = Intent(this, WorkoutActivity::class.java) // RENAME your old camera activity to WorkoutActivity
-            startActivity(intent)
-        }
+        // Find the navigation controller from our FragmentContainerView
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        // Set up the bottom navigation view with the navigation controller
+        // This is what makes the tabs work!
+        binding.bottomNavigation.setupWithNavController(navController)
     }
 }
-
