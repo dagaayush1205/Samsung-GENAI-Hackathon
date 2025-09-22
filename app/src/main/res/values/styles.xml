@@ -1,41 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-    ~ Copyright 2023 The TensorFlow Authors. All Rights Reserved.
-    ~
-    ~ Licensed under the Apache License, Version 2.0 (the "License");
-    ~ you may not use this file except in compliance with the License.
-    ~ You may obtain a copy of the License at
-    ~
-    ~       http://www.apache.org/licenses/LICENSE-2.0
-    ~
-    ~ Unless required by applicable law or agreed to in writing, software
-    ~ distributed under the License is distributed on an "AS IS" BASIS,
-    ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    ~ See the License for the specific language governing permissions and
-    ~ limitations under the License.
--->
 <resources>
-
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar" >
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/mp_color_primary</item>
-        <item name="colorPrimaryVariant">@color/mp_color_primary_variant</item>
-        <item name="colorPrimaryDark">@color/mp_color_primary_dark</item>
+        <item name="colorPrimary">@color/accent_lime</item>
+        <item name="colorPrimaryVariant">@color/accent_lime</item>
+        <item name="colorOnPrimary">@color/text_on_accent</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/mp_color_secondary</item>
-        <item name="colorSecondaryVariant">@color/mp_color_secondary_variant</item>
-        <item name="colorError">@color/mp_color_error</item>
+        <item name="colorSecondary">@color/accent_purple</item>
+        <item name="colorSecondaryVariant">@color/accent_purple</item>
+        <item name="colorOnSecondary">@color/text_on_accent</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:statusBarColor">@color/app_background</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="android:textColor">@color/text_primary</item>
+  </style>
+<!-- Achievement Icon Styles -->
+    <style name="AchievementIcon">
+        <item name="android:layout_width">64dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:background">@drawable/achievement_background</item>
+        <item name="android:padding">16dp</item>
     </style>
 
-    <style name="BottomSheetSpinnerItemStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
-        <item name="android:textSize">@dimen/bottom_sheet_text_size</item>
+    <style name="AchievementIcon.Unlocked">
+        <item name="android:backgroundTint">@color/accent_lime</item>
+        <item name="tint">@color/text_on_accent</item>
     </style>
 
-    <style name="AppThemeProgressStyle">
-        <item name="colorAccent">@color/mp_color_primary_variant</item>
+    <style name="AchievementIcon.Locked">
+        <item name="android:backgroundTint">@color/card_background</item>
+        <item name="tint">@color/text_secondary</item>
+    </style>
+
+    <!-- Splash Screen Theme -->
+    <style name="AppTheme.Splash" parent="AppTheme">
+        <item name="android:windowBackground">@color/app_background</item>
     </style>
 </resources>
