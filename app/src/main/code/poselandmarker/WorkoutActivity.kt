@@ -1,4 +1,4 @@
-package poselandmarker
+package com.google.mediapipe.examples.poselandmarker
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

@@ -16,8 +16,10 @@
 package com.google.mediapipe.examples.poselandmarker.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +36,7 @@ import com.google.mediapipe.examples.poselandmarker.MainViewModel
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
 import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.data.AppDatabase
+import com.google.mediapipe.examples.poselandmarker.data.Challenge
 import com.google.mediapipe.examples.poselandmarker.data.WorkoutSession
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentCameraBinding
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
@@ -47,7 +50,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.atan2
 
-class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
+class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, TextToSpeech.OnInitListener {
 
     companion object {
         private const val TAG = "Pose Landmarker"
@@ -65,12 +68,22 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
 
     private lateinit var backgroundExecutor: ExecutorService
+    private lateinit var textToSpeech: TextToSpeech
 
-    // --- NEW VARIABLES FOR REP COUNTING ---
+    private var currentWorkoutType: String = "PUSH_UP"
     private var repCount = 0
-    private var pushupState = "up" // Can be "up" or "down"
+    private var workoutState = "up"
     private var formScoreAccumulator = 0.0
     private var formScoreSamples = 0
+    private var lastFeedbackTime = 0L
+
+    private val dailyChallenges = listOf(
+        Challenge("Quick 15", "Do 15 push-ups in a single session.", 15, "Push-ups"),
+        Challenge("Morning Burst", "Get your blood pumping with 20 push-ups.", 20, "Push-ups"),
+        Challenge("Solid Strength", "Show your strength with 25 push-ups.", 25, "Push-ups"),
+        Challenge("The Challenger", "Push your limits with 30 push-ups.", 30, "Push-ups"),
+        Challenge("Endurance Test", "Go the distance with 35 push-ups.", 35, "Push-ups")
+    )
 
     override fun onResume() {
         super.onResume()
@@ -107,6 +120,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         backgroundExecutor.awaitTermination(
             Long.MAX_VALUE, TimeUnit.NANOSECONDS
         )
+        if (this::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
     }
 
     override fun onCreateView(
@@ -114,8 +131,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _fragmentCameraBinding =
-            FragmentCameraBinding.inflate(inflater, container, false)
+        _fragmentCameraBinding = FragmentCameraBinding.inflate(inflater, container, false)
+        currentWorkoutType = activity?.intent?.getStringExtra("WORKOUT_TYPE") ?: "PUSH_UP"
         return fragmentCameraBinding.root
     }
 
@@ -126,7 +143,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
         fragmentCameraBinding.viewFinder.post {
-            setUpCamera()
+            setUpCamera() // This call is now valid
         }
 
         backgroundExecutor.execute {
@@ -141,19 +158,17 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             )
         }
 
-        // --- ADDED CLICK LISTENER HERE (CLEANED UP) ---
+        textToSpeech = TextToSpeech(requireContext(), this)
+
         fragmentCameraBinding.finishWorkoutButton.setOnClickListener {
-            // Calculate the final average score
             val finalScore = if (formScoreSamples > 0) (formScoreAccumulator / formScoreSamples).toInt() else 100
-
-            // Save the workout session with the ACTUAL rep count and score
-            saveWorkoutSession("Push-ups", repCount, finalScore)
-
-            // Close the workout screen
+            val exerciseName = if (currentWorkoutType == "SQUAT") "Squats" else "Push-ups"
+            saveWorkoutSession(exerciseName, repCount, finalScore)
             activity?.finish()
         }
     }
 
+    // --- ALL THE MISSING CAMERA FUNCTIONS ARE RESTORED HERE ---
     private fun setUpCamera() {
         val cameraProviderFuture =
             ProcessCameraProvider.getInstance(requireContext())
@@ -210,15 +225,34 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
     }
 
+    // --- All other functions from before are here ---
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = textToSpeech.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(TAG, "The Language specified is not supported!")
+            }
+        } else {
+            Log.e(TAG, "TTS Initialization Failed!")
+        }
+    }
+
+    private fun speak(text: String) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastFeedbackTime > 2000) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+            lastFeedbackTime = currentTime
+        }
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         imageAnalyzer?.targetRotation =
             fragmentCameraBinding.viewFinder.display.rotation
     }
 
-    override fun onResults(
-        resultBundle: PoseLandmarkerHelper.ResultBundle
-    ) {
+    override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
         activity?.runOnUiThread {
             if (_fragmentCameraBinding != null) {
                 fragmentCameraBinding.overlay.setResults(
@@ -229,9 +263,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 )
 
                 if (resultBundle.results.first().landmarks().isNotEmpty()) {
-                    val formResult = checkPushupFormAndCountReps(resultBundle.results.first())
-
-                    // Update the form score accumulator
+                    val formResult = analyzePose(resultBundle.results.first())
                     formScoreAccumulator += if (formResult.isCorrect) 100.0 else 0.0
                     formScoreSamples++
 
@@ -240,9 +272,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                     } else {
                         fragmentCameraBinding.aiFeedbackText.text = formResult.feedbackMessage
                         fragmentCameraBinding.aiFeedbackText.visibility = View.VISIBLE
+                        speak(formResult.feedbackMessage)
                     }
                 }
-
                 fragmentCameraBinding.overlay.invalidate()
             }
         }
@@ -251,6 +283,13 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     override fun onError(error: String, errorCode: Int) {
         activity?.runOnUiThread {
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun analyzePose(poseLandmarkerResult: PoseLandmarkerResult): FormResult {
+        return when (currentWorkoutType) {
+            "SQUAT" -> checkSquatFormAndCountReps(poseLandmarkerResult)
+            else -> checkPushupFormAndCountReps(poseLandmarkerResult)
         }
     }
 
@@ -266,40 +305,61 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         return if (angle < 0) angle + 360 else angle
     }
 
-    // --- UPDATED LOGIC TO ACTUALLY COUNT REPS ---
+    private fun checkSquatFormAndCountReps(poseLandmarkerResult: PoseLandmarkerResult): FormResult {
+        val landmarks = poseLandmarkerResult.landmarks().first()
+        val leftShoulder = landmarks[11]
+        val leftHip = landmarks[23]
+        val leftKnee = landmarks[25]
+        val leftAnkle = landmarks[27]
+        val kneeAngle = getAngle(leftHip, leftKnee, leftAnkle)
+        val hipAngle = getAngle(leftShoulder, leftHip, leftKnee)
+
+        if (kneeAngle < 100 && hipAngle < 100) {
+            if (workoutState == "up") {
+                workoutState = "down"
+            }
+        } else if (kneeAngle > 160 && hipAngle > 170) {
+            if (workoutState == "down") {
+                repCount++
+                fragmentCameraBinding.repCountText.text = "Reps: $repCount"
+                workoutState = "up"
+            }
+        }
+        if (kneeAngle > 100 && workoutState == "down") {
+            if (hipAngle < 150) {
+                 return FormResult(false, "Keep your chest up!")
+            }
+        }
+        return FormResult(isCorrect = true, feedbackMessage = "Good squat!")
+    }
+
     private fun checkPushupFormAndCountReps(poseLandmarkerResult: PoseLandmarkerResult): FormResult {
         val landmarks = poseLandmarkerResult.landmarks().first()
-
         val leftShoulder = landmarks[11]
         val leftElbow = landmarks[13]
         val leftWrist = landmarks[15]
         val leftHip = landmarks[23]
         val leftKnee = landmarks[25]
-
         val elbowAngle = getAngle(leftShoulder, leftElbow, leftWrist)
         val hipAngle = getAngle(leftShoulder, leftHip, leftKnee)
 
-        // State machine for counting reps
-        if (elbowAngle < 90 && hipAngle > 150) { // User is in the "down" position with a straight back
-            if (pushupState == "up") {
-                pushupState = "down"
+        if (elbowAngle < 90 && hipAngle > 150) {
+            if (workoutState == "up") {
+                workoutState = "down"
             }
-        } else if (elbowAngle > 160 && hipAngle > 150) { // User is in the "up" position with a straight back
-            if (pushupState == "down") {
+        } else if (elbowAngle > 160 && hipAngle > 150) {
+            if (workoutState == "down") {
                 repCount++
                 fragmentCameraBinding.repCountText.text = "Reps: $repCount"
-                pushupState = "up"
+                workoutState = "up"
             }
         }
-
-        // Form checking logic
         if (hipAngle < 150) {
             return FormResult(false, "Keep your back straight! Don't drop your hips.")
         }
         if (hipAngle > 195) {
             return FormResult(false, "Keep your back straight! Don't raise your hips.")
         }
-
         return FormResult(isCorrect = true, feedbackMessage = "Great Form!")
     }
 
@@ -315,6 +375,17 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         )
         lifecycleScope.launch(Dispatchers.IO) {
             dao.insert(session)
+            val calendar = Calendar.getInstance()
+            val dayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
+            val challengeIndex = dayOfYear % dailyChallenges.size
+            val todayChallenge = dailyChallenges[challengeIndex]
+            if (session.reps >= todayChallenge.repGoal && session.exerciseType.equals(todayChallenge.exerciseType, ignoreCase = true)) {
+                val sharedPref = activity?.getSharedPreferences("WorkoutPrefs", Context.MODE_PRIVATE) ?: return@launch
+                with(sharedPref.edit()) {
+                    putInt("LastChallengeCompletedDay", dayOfYear)
+                    apply()
+                }
+            }
         }
     }
 }
