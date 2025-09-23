@@ -6,6 +6,7 @@
     <uses-feature android:name="android.hardware.type.watch" />
     <uses-permission android:name="com.samsung.android.health.permission.read"/>
     <uses-permission android:name="com.samsung.android.health.permission.HEART_RATE"/>
+    
 
     <application
         android:allowBackup="true"

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.*
 import com.example.samsunghackathon.presentation.theme.SamsungHackathonTheme
+import com.samsung.android.sdk.health.data.*
 import com.samsung.android.sdk.healthdata.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
