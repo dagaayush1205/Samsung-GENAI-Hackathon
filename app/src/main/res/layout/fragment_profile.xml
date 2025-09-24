@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:fillViewport="true"
+    tools:context=".fragment.ProfileFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_profile"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/accent_lime" />
+
+        <TextView
+            android:id="@+id/profile_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/profile_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/profile_image"
+            app:layout_constraintTop_toTopOf="@+id/profile_image"
+            tools:text="Julia Smith" />
+
+        <!-- STATS GRID -->
+        <GridLayout
+            android:id="@+id/stats_grid"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:columnCount="2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_image">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Reps"
+                        android:textColor="@color/text_secondary" />
+                    <TextView
+                        android:id="@+id/total_reps_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="1,240" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Workouts"
+                        android:textColor="@color/text_secondary" />
+                    <TextView
+                        android:id="@+id/total_workouts_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="12" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </GridLayout>
+
+        <TextView
+            android:id="@+id/achievements_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Achievements"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stats_grid" />
+
+        <HorizontalScrollView
+            android:id="@+id/achievements_scroll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/achievements_title">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <!-- Sample Achievements to show the design -->
+                <ImageView android:src="@drawable/ic_workouts" style="@style/AchievementIcon.Unlocked"/>
+                <ImageView android:src="@drawable/ic_workouts" style="@style/AchievementIcon.Unlocked"/>
+                <ImageView android:src="@drawable/ic_workouts" style="@style/AchievementIcon.Locked"/>
+                <ImageView android:src="@drawable/ic_workouts" style="@style/AchievementIcon.Locked"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/history_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:drawableEnd="@drawable/ic_arrow_forward"
+            android:gravity="start|center_vertical"
+            android:text="Workout History"
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/achievements_scroll" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

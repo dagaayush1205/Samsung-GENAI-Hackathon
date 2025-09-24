@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A0A0A"
+    android:padding="20dp"
+    tools:context=".fragment.WorkoutsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Your Workout"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <androidx.cardview.widget.CardView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/start_ai_coach_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="#1C1C1E"
+            app:cardCornerRadius="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Form Coach"
+                    android:textColor="@color/lime_accent"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get real-time feedback on your form using your phone's camera. The core of your hackathon project."
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+    <!-- Add this second CardView for the Squat Coach -->
+        <androidx.cardview.widget.CardView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/start_squat_coach_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/card_background"
+            app:cardCornerRadius="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Squat Coach"
+                    android:textColor="@color/accent_purple"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Perfect your squat form with real-time feedback on depth and posture."
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+</RelativeLayout>
+
