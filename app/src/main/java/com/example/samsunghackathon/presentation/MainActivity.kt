@@ -2,6 +2,7 @@ package com.example.samsunghackathon.presentation
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -13,10 +14,23 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,28 +39,60 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.material.*
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.TimeText
 import com.example.samsunghackathon.presentation.theme.SamsungHackathonTheme
+import com.samsung.android.service.health.tracking.ConnectionListener
+import com.samsung.android.service.health.tracking.HealthTracker
+import com.samsung.android.service.health.tracking.HealthTrackingService
+import com.samsung.android.service.health.tracking.data.DataPoint
+import com.samsung.android.service.health.tracking.data.ValueKey
+
 
 class MainActivity : ComponentActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
-    private var heartRateSensor: Sensor? = null
-    private val heartRateValue = mutableStateOf(0f)
+    private var trackingService: HealthTrackingService? = null
+    private var spo2Tracker: HealthTracker? = null
+    // Map of sensor type → live value
+    private val sensorValues = mutableStateMapOf<Int, Float>()
 
+    // List of sensors we want to observe
+    private val sensorTypesToMonitor = listOf(
+        Sensor.TYPE_HEART_RATE,
+        Sensor.TYPE_STEP_COUNTER,
+        Sensor.TYPE_ACCELEROMETER,
+        Sensor.TYPE_GYROSCOPE
+    )
+    companion object {
+        const val SENSOR_SPO2 = 1001 // arbitrary unique ID
+    }
+
+    private val healthTrackingService: HealthTrackingService? = null
+    private val ecgTracker: HealthTracker? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
 
+        // Initialize values with 0
+        sensorTypesToMonitor.forEach { sensorValues[it] = 0f }
+
+        //trackingService = HealthTrackingService(this)
+        trackingService?.connectService()
         setContent {
-            WearApp(heartRateValue)
+            WearApp(sensorValues)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        heartRateSensor?.also { sensor ->
-            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorTypesToMonitor.forEach { type ->
+            sensorManager.getDefaultSensor(type)?.also { sensor ->
+                sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+            }
         }
     }
 
@@ -61,16 +107,45 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
-            if (it.sensor.type == Sensor.TYPE_HEART_RATE) {
-                heartRateValue.value = it.values[0]
-                Log.d("HeartRateSensor", "New reading: ${it.values[0]}")
+            if (it.sensor.type in sensorTypesToMonitor) {
+                sensorValues[it.sensor.type] = it.values[0] // track first value
+                Log.d("SensorUpdate", "${sensorTypeName(it.sensor.type)} = ${it.values[0]}")
             }
         }
+    }
+        private fun setupSpO2Tracker() {
+            spo2Tracker = trackingService?.getHealthTracker(com.samsung.android.service.health.tracking.data.HealthTrackerType.SPO2_ON_DEMAND)
+
+            spo2Tracker?.setEventListener(object : HealthTracker.TrackerEventListener {
+                override fun onDataReceived(dataPoints: MutableList<com.samsung.android.service.health.tracking.data.DataPoint>?) {
+                    dataPoints?.forEach { dp ->
+                        val spo2 = dp.getValue(com.samsung.android.service.health.tracking.data.ValueKey.SpO2Set.SPO2)
+                        if (spo2 != null) {
+                            sensorValues[SENSOR_SPO2] = spo2.toFloat()
+                            Log.d("SamsungHealth", "SpO₂: $spo2 %")
+                        }
+                    }
+                }
+
+                override fun onFlushCompleted() {}
+                override fun onError(error: HealthTracker.TrackerError?) {
+                    Log.e("SamsungHealth", "SpO₂ Error: $error")
+                }
+            })
+        }
+    // Helper to map sensor type to a readable label
+    private fun sensorTypeName(type: Int): String = when (type) {
+        Sensor.TYPE_HEART_RATE -> "Heart Rate"
+        Sensor.TYPE_STEP_COUNTER -> "Steps"
+        Sensor.TYPE_ACCELEROMETER -> "Accelerometer"
+        Sensor.TYPE_GYROSCOPE -> "Gyroscope"
+        SENSOR_SPO2 -> "SpO₂"
+        else -> "Unknown"
     }
 }
 
 @Composable
-fun WearApp(heartRate: State<Float>) {
+fun WearApp(sensorValues: Map<Int, Float>) {
     var hasPermission by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -81,11 +156,10 @@ fun WearApp(heartRate: State<Float>) {
     }
 
     LaunchedEffect(Unit) {
-        // Check permission on launch
         val permission = Manifest.permission.BODY_SENSORS
-        if (context.checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            hasPermission = true
-        } else {
+        hasPermission =
+            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
             permissionLauncher.launch(permission)
         }
     }
@@ -99,7 +173,7 @@ fun WearApp(heartRate: State<Float>) {
                 contentAlignment = Alignment.Center
             ) {
                 if (hasPermission) {
-                    HeartRateScreen(heartRate.value)
+                    SensorsScreen(sensorValues)
                 } else {
                     PermissionRequestScreen(
                         onGrantClick = {
@@ -113,31 +187,55 @@ fun WearApp(heartRate: State<Float>) {
 }
 
 @Composable
-fun HeartRateScreen(heartRate: Float) {
+fun SensorsScreen(sensorValues: Map<Int, Float>) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        sensorValues.forEach { (type, value) ->
+            SensorDisplay(type, value)
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+fun SensorDisplay(sensorType: Int, value: Float) {
+    val name = when (sensorType) {
+        Sensor.TYPE_HEART_RATE -> "Heart Rate"
+        Sensor.TYPE_STEP_COUNTER -> "Steps"
+        Sensor.TYPE_ACCELEROMETER -> "Accelerometer (X)"
+        Sensor.TYPE_GYROSCOPE -> "Gyroscope (X)"
+        SENSOR_SPO2 -> "Spo2"
+        else -> "Unknown"
+    }
+
+    if (sensorType == Sensor.TYPE_HEART_RATE) {
         Icon(
             imageVector = Icons.Default.Favorite,
             contentDescription = "Heart Icon",
             tint = Color(0xFFE57373),
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier.size(36.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Live Heart Rate", fontSize = 16.sp, color = Color.White.copy(alpha = 0.7f))
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = if (heartRate > 0) String.format("%.0f", heartRate) else "--",
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colors.primary,
-        )
-
-        Text(text = "BPM", fontSize = 16.sp, color = Color.White.copy(alpha = 0.7f))
     }
+    if (sensorType == SENSOR_SPO2) {
+        Icon(
+            imageVector = Icons.Default.Favorite, // optional, or use custom SpO2 icon
+            contentDescription = "SpO₂ Icon",
+            tint = Color.Cyan,
+            modifier = Modifier.size(36.dp)
+        )
+    }
+
+    Text(
+        text = "$name: ${if (value > 0) String.format("%.1f", value) else "--"}",
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colors.primary,
+    )
 }
 
 @Composable
@@ -149,9 +247,13 @@ fun PermissionRequestScreen(onGrantClick: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Permission Required", fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text("Permission Required", fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "This app needs access to body sensors to show live heart rate.", textAlign = TextAlign.Center, fontSize = 12.sp)
+        Text(
+            "This app needs access to body sensors to show live data.",
+            textAlign = TextAlign.Center,
+            fontSize = 12.sp
+        )
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = onGrantClick) {
             Text("Grant Access")
