@@ -1,5 +1,6 @@
 ## AuraFit: An On-Device, Multi-Modal AI Workout Coach
 ### Status: Samsung PRISM GenAI Hackathon 2025 Submission
+Made by- Team Astro Bugs (SRM Institute of Science and Technology, KTR)
 
 Platform: Android (Kotlin)
 
@@ -16,6 +17,7 @@ Platform: Android (Kotlin)
 7. [System Requirements](#system-requirements)
 8. [Engineering Decisions & Bottlenecks](#engineering-decisions--bottlenecks)
 9. [Submissions](#submissions)
+10. [Team Contribution](#team-contribution)
 
 ## Overview
 AuraFit addresses a critical gap in the at-home fitness market: the lack of accessible, private, and intelligent coaching. While many apps track workouts, they fail to provide the real-time, expert feedback necessary for safe and effective exercise. Existing AI solutions often compromise user privacy by streaming sensitive camera data to the cloud.
@@ -48,7 +50,7 @@ AuraFit is a revolutionary Android application, built entirely in Kotlin, that t
 - **Daily Updates**
   Keeps Calendar based updates of every data daily. Serving as a personal workout diary.
 
-## 3. System Architecture: The Hybrid AI Data Fusion Pipeline
+## 3. System Architecture
 
 AuraFit is built as a high-performance, real-time data fusion system, optimized for **on-device execution** to guarantee privacy and offline reliability. At its core is our **Hybrid AI Engine** — a dual-model architecture that ensures maximum intelligence while guaranteeing **100% operational uptime**, even under strict mobile memory constraints.
 
@@ -307,3 +309,15 @@ AuraFit’s biggest innovations came directly from solving these bottlenecks:
     Video Demo URL: [Link to your YouTube or Google Drive video]
 
     Supplementary PDF Report: [Link to your TeamName.pdf if hosted online]
+
+## 10. Team contributions
+
+Our team's success was driven by a clear division of roles, allowing for rapid, parallel development of the app's complex components.
+
+1. **Pavithra CP**- Engineered Core Application Structure and the Hybrid AI integration. Implemented pose landmarker from media pipe.
+2. **Ayush Daga**- Integration of Samsung SDK. Worked in the `watch` branch to bring on the wearable and biometric support. Managed complex permission and connection lifestyle.
+3. **Nikhil CP**- Worked with improving the UI and the User Experience. Improved the xml files and the fragments to bring an immersive experience. Implemented the Room Database for workout history and Persistence.
+4. **Dhruv Gupta**- Helped with R&D and final integration and presentation. Vital role in testing, onboarding and error debugging for a flawless project.
+
+Made with Love <3 
+Team Astro Bugs (SRM IST, KTR)
