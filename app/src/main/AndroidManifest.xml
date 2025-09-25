@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="poselandmarker">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Declare features -->
-    <uses-feature android:name="android.hardware.camera" android:required="true"/>
+    <uses-feature android:name="android.hardware.camera" />
 
     <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- THIS IS THE CORRECT PERMISSION FOR THE SENSOR SDK -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
 
     <application
         android:allowBackup="true"
@@ -15,34 +17,37 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:taskAffinity=""
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
+        <!-- NOTE: The meta-data tag for the old SDK has been removed as it is not needed. -->
+
         <!-- Launcher activity -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <!-- Notch support -->
-            <meta-data
-                android:name="android.notch_support"
-                android:value="true" />
         </activity>
 
-        <!-- Workout screen -->
+        <!-- Main dashboard activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- Workout screen (camera/nav host) -->
         <activity
             android:name=".WorkoutActivity"
-            android:exported="true" />
-
-        <!-- Optional: Splash screen -->
-        <activity
-            android:name=".SplashActivity"
             android:exported="false" />
+
+        <!-- History screen -->
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
