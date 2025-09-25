@@ -54,9 +54,7 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
-    implementation(files("../1.0.0/libs/samsung-health-data-api-1.0.0.aar"))
-        implementation("com.google.android.libraries.healthdata:health-data-api:1.0.0-alpha01")
-        implementation("com.samsung.android.sdk:samsung-health-data:1.0.0")
-        implementation("androidx.compose.material:material-icons-extended:1.7.0")
-    implementation(name = "samsung-health-data-api-1.0.0", ext = "aar")implementation("com.samsung.android.sdk:samsung-health-data:1.3.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.0")
+    implementation(files("libs/samsung-health-data-api-1.0.0.aar"))
+    implementation(files("libs/samsung-health-sensor-api-1.4.1.aar"))
 }
