@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var trackingService: HealthTrackingService? = null
     private var spo2Tracker: HealthTracker? = null
+    private var stressTracker: HealthTracker? = null
     // Map of sensor type → live value
     private val sensorValues = mutableStateMapOf<Int, Float>()
 
@@ -64,11 +65,12 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private val sensorTypesToMonitor = listOf(
         Sensor.TYPE_HEART_RATE,
         Sensor.TYPE_STEP_COUNTER,
-        Sensor.TYPE_ACCELEROMETER,
-        Sensor.TYPE_GYROSCOPE
+//        Sensor.TYPE_ACCELEROMETER,
+//        Sensor.TYPE_GYROSCOPE
     )
     companion object {
         const val SENSOR_SPO2 = 1001 // arbitrary unique ID
+        const val SENSOR_STRESS = 1002
     }
 
     private val healthTrackingService: HealthTrackingService? = null
@@ -79,7 +81,10 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         // Initialize values with 0
         sensorTypesToMonitor.forEach { sensorValues[it] = 0f }
-
+        sensorValues[MainActivity.SENSOR_SPO2] = 0f
+        sensorValues[MainActivity.SENSOR_STRESS] = 0f
+        setupSpO2Tracker()
+        setupStressTracker()
         //trackingService = HealthTrackingService(this)
         trackingService?.connectService()
         setContent {
@@ -113,11 +118,13 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             }
         }
     }
-        private fun setupSpO2Tracker() {
+
+
+    private fun setupSpO2Tracker() {
             spo2Tracker = trackingService?.getHealthTracker(com.samsung.android.service.health.tracking.data.HealthTrackerType.SPO2_ON_DEMAND)
 
-            spo2Tracker?.setEventListener(object : HealthTracker.TrackerEventListener {
-                override fun onDataReceived(dataPoints: MutableList<com.samsung.android.service.health.tracking.data.DataPoint>?) {
+            spo2Tracker?.setEventListener(object: HealthTracker.TrackerEventListener{
+                override fun onDataReceived(dataPoints: MutableList<DataPoint>) {
                     dataPoints?.forEach { dp ->
                         val spo2 = dp.getValue(com.samsung.android.service.health.tracking.data.ValueKey.SpO2Set.SPO2)
                         if (spo2 != null) {
@@ -127,19 +134,63 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     }
                 }
 
-                override fun onFlushCompleted() {}
-                override fun onError(error: HealthTracker.TrackerError?) {
-                    Log.e("SamsungHealth", "SpO₂ Error: $error")
+                override fun onFlushCompleted() {
+                        TODO("Not yet implemented")
+                }
+
+                override fun onError(p0: HealthTracker.TrackerError?) {
+                    TODO("Not yet implemented")
+
                 }
             })
         }
+    private fun setupStressTracker() {
+        // Variable name updated for clarity
+        val ppgTracker = trackingService?.getHealthTracker(com.samsung.android.service.health.tracking.data.HealthTrackerType.PPG_ON_DEMAND)
+
+        ppgTracker?.setEventListener(object : HealthTracker.TrackerEventListener {
+            override fun onDataReceived(dataPoints: MutableList<DataPoint>) {
+                dataPoints.forEach { dp ->
+                    // *** IMPORTANT: Use the correct ValueKey for PPG data ***
+                    val ppgValue = dp.getValue(ValueKey.PpgSet.PPG_GREEN)
+
+                    if (ppgValue != null) {
+                        // Store it using your new constant
+                        sensorValues[SENSOR_STRESS] = ppgValue.toFloat()
+                        Log.d("SamsungHealth", "Raw PPG Green Value: $ppgValue")
+                    }
+                }
+            }
+            override fun onFlushCompleted() {}
+            override fun onError(error: HealthTracker.TrackerError?) {
+                Log.e("SamsungHealth", "PPG Tracker Error: $error")
+            }
+        })
+    }
+
+
+    fun onConnectionSuccess() {
+        // This is the correct method for a successful connection.
+        Log.d("HealthService", "ConnectionListener: onConnected!")
+    }
+
+    fun onDisconnected() {
+        // This is called if the service disconnects unexpectedly.
+        Log.w("HealthService", "ConnectionListener: onDisconnected!")
+    }
+
+//    fun onError(error: HealthTrackerException) {
+//        // This is called if a connection-level error occurs.
+//        Log.e("HealthService", "ConnectionListener: onError - $error")
+//    }
     // Helper to map sensor type to a readable label
     private fun sensorTypeName(type: Int): String = when (type) {
         Sensor.TYPE_HEART_RATE -> "Heart Rate"
         Sensor.TYPE_STEP_COUNTER -> "Steps"
-        Sensor.TYPE_ACCELEROMETER -> "Accelerometer"
-        Sensor.TYPE_GYROSCOPE -> "Gyroscope"
-        SENSOR_SPO2 -> "SpO₂"
+//        Sensor.TYPE_ACCELEROMETER -> "Accelerometer"
+//        Sensor.TYPE_GYROSCOPE -> "Gyroscope"
+        MainActivity.SENSOR_SPO2 -> "SpO₂"
+        MainActivity.SENSOR_STRESS -> "Stress Score"
         else -> "Unknown"
     }
 }
@@ -207,21 +258,22 @@ fun SensorDisplay(sensorType: Int, value: Float) {
     val name = when (sensorType) {
         Sensor.TYPE_HEART_RATE -> "Heart Rate"
         Sensor.TYPE_STEP_COUNTER -> "Steps"
-        Sensor.TYPE_ACCELEROMETER -> "Accelerometer (X)"
-        Sensor.TYPE_GYROSCOPE -> "Gyroscope (X)"
-        SENSOR_SPO2 -> "Spo2"
-        else -> "Unknown"
+//        Sensor.TYPE_ACCELEROMETER -> "Accelerometer (X)"
+//        Sensor.TYPE_GYROSCOPE -> "Gyroscope (X)"
+        MainActivity.SENSOR_SPO2 -> "Spo2"
+        MainActivity.SENSOR_STRESS -> "Stress Score"
+         else -> "Unknown"
     }
 
-    if (sensorType == Sensor.TYPE_HEART_RATE) {
-        Icon(
-            imageVector = Icons.Default.Favorite,
-            contentDescription = "Heart Icon",
-            tint = Color(0xFFE57373),
-            modifier = Modifier.size(36.dp)
-        )
-    }
-    if (sensorType == SENSOR_SPO2) {
+//    if (sensorType == Sensor.TYPE_HEART_RATE) {
+//        Icon(
+//            imageVector = Icons.Default.Favorite,
+//            contentDescription = "Heart Icon",
+//            tint = Color(0xFFE57373),
+//            modifier = Modifier.size(36.dp)
+//        )
+//    }
+    if (sensorType == MainActivity.SENSOR_SPO2) {
         Icon(
             imageVector = Icons.Default.Favorite, // optional, or use custom SpO2 icon
             contentDescription = "SpO₂ Icon",
