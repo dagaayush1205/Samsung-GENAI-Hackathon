@@ -11,8 +11,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://developer.samsung.com/repo")}
-            mavenLocal()
+        maven { url = uri("[https://developer.samsung.com/repo](https://developer.samsung.com/repo)") }
+        mavenLocal()
     }
 }
 
