@@ -19,3 +19,7 @@ Thumbs.db
 
 # Optional: exclude MediaPipe model downloads if large
 app/src/main/assets/*.task
+
+app/src/main/jniLibs/arm64-v8a/
+app/src/main/jniLibs/armeabi-v7a/
+
