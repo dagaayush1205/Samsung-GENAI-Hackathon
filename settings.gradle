@@ -7,12 +7,18 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
+        // 👇 this is what lets Gradle find your local AARs
+        flatDir {
+            dirs 'app/libs'
+        }
     }
 }
 
-rootProject.name = "samsung_genai"
+rootProject.name = "Pose Landmarker"
 include(":app")
+
