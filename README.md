@@ -108,7 +108,6 @@ Actionable feedback is delivered through two synchronized channels:
 
 The AuraFit codebase is organized into a **modular and scalable structure**, separating core AI logic, UI, data management, and resources for maintainability.
 ```
-```
 samsung_genai/
 ├── app/
 │ ├── build.gradle # App-level Gradle configuration
@@ -182,7 +181,6 @@ samsung_genai/
 ├── pose_landmarker.png
 ├── settings.gradle
 └── build.gradle # Project-level Gradle configuration
-```
 ```
 
 ---
