@@ -305,10 +305,9 @@ AuraFit’s biggest innovations came directly from solving these bottlenecks:
 
 
 ## 9. Submissions
-
-    Video Demo URL: [Link to your YouTube or Google Drive video]
-
-    Supplementary PDF Report: [Link to your TeamName.pdf if hosted online]
+1. Video Demo URL: [Link to your YouTube or Google Drive video]
+2. PPT Report: [AuraFit_AstroBugs.pptx](https://www.canva.com/design/DAGwDmy_bnM/PFquP6FREVcB3HAju_l08A/edit?utm_content=DAGwDmy_bnM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+3. Supplementary Comprehensive Report: [AuraFit_AstroBugs.docx](https://docs.google.com/document/d/13vj1ibzpzgUd_aeFldWapiHs7x7Pdx3yajBTgnKVhQM/edit?usp=sharing)
 
 ## 10. Team contributions
 
