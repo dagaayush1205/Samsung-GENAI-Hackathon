@@ -1,21 +1,16 @@
 <resources>
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
         <item name="colorPrimary">@color/accent_lime</item>
         <item name="colorPrimaryVariant">@color/accent_lime</item>
         <item name="colorOnPrimary">@color/text_on_accent</item>
-        <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/accent_purple</item>
         <item name="colorSecondaryVariant">@color/accent_purple</item>
         <item name="colorOnSecondary">@color/text_on_accent</item>
-        <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/app_background</item>
-        <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/app_background</item>
         <item name="android:textColor">@color/text_primary</item>
-  </style>
-<!-- Achievement Icon Styles -->
+    </style>
+    
     <style name="AchievementIcon">
         <item name="android:layout_width">64dp</item>
         <item name="android:layout_height">64dp</item>
@@ -34,8 +29,11 @@
         <item name="tint">@color/text_secondary</item>
     </style>
 
-    <!-- Splash Screen Theme -->
-    <style name="AppTheme.Splash" parent="AppTheme">
-        <item name="android:windowBackground">@color/app_background</item>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/app_background</item>
+    
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_splash</item>
+    
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 </resources>

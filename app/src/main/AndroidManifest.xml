@@ -23,15 +23,15 @@
         <!-- NOTE: The meta-data tag for the old SDK has been removed as it is not needed. -->
 
         <!-- Launcher activity -->
-        <activity
-            android:name=".SplashActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.Splash">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-    </activity>
+<activity
+    android:name=".SplashActivity"
+    android:exported="true"
+    android:theme="@style/Theme.App.Starting">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
 
      <!-- Add this inside the <application> tag in your PHONE APP's manifest -->
         <service
