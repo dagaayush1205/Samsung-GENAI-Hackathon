@@ -2,6 +2,11 @@
 ### Status: Samsung PRISM GenAI Hackathon 2025 Submission
 Made by- Team Astro Bugs (SRM Institute of Science and Technology, KTR)
 
+1. Video Demo URL: [Link to your YouTube or Google Drive video]
+2. PPT Report: [AuraFit_AstroBugs.pptx](https://www.canva.com/design/DAGwDmy_bnM/PFquP6FREVcB3HAju_l08A/edit?utm_content=DAGwDmy_bnM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+3. Supplementary Comprehensive Report: [AuraFit_AstroBugs.docx](https://docs.google.com/document/d/13vj1ibzpzgUd_aeFldWapiHs7x7Pdx3yajBTgnKVhQM/edit?usp=sharing)
+
+
 Platform: Android (Kotlin)
 
 ### Core Technologies: MediaPipe, Samsung Health SDK, Android Room, Gemma3b (LLM)
@@ -16,8 +21,7 @@ Platform: Android (Kotlin)
 6. [Setup and Installation](#setup-and-installation)
 7. [System Requirements](#system-requirements)
 8. [Engineering Decisions & Bottlenecks](#engineering-decisions--bottlenecks)
-9. [Submissions](#submissions)
-10. [Team Contribution](#team-contribution)
+9. [Team Contribution](#team-contribution)
 
 ## Overview
 AuraFit addresses a critical gap in the at-home fitness market: the lack of accessible, private, and intelligent coaching. While many apps track workouts, they fail to provide the real-time, expert feedback necessary for safe and effective exercise. Existing AI solutions often compromise user privacy by streaming sensitive camera data to the cloud.
@@ -53,6 +57,8 @@ AuraFit is a revolutionary Android application, built entirely in Kotlin, that t
 ## 3. System Architecture
 
 AuraFit is built as a high-performance, real-time data fusion system, optimized for **on-device execution** to guarantee privacy and offline reliability. At its core is our **Hybrid AI Engine** — a dual-model architecture that ensures maximum intelligence while guaranteeing **100% operational uptime**, even under strict mobile memory constraints.
+
+![System Architecture](files/system_architecture.png)
 
 ### Data Fusion Pipeline
 
@@ -303,13 +309,7 @@ AuraFit’s biggest innovations came directly from solving these bottlenecks:
 - **Building clean integrations** (Samsung Health Data SDK manager)  
 - **Pioneering crash-proof AI architectures** (Hybrid Reflex + Cognitive engines with smart fallback)  
 
-
-## 9. Submissions
-1. Video Demo URL: [Link to your YouTube or Google Drive video]
-2. PPT Report: [AuraFit_AstroBugs.pptx](https://www.canva.com/design/DAGwDmy_bnM/PFquP6FREVcB3HAju_l08A/edit?utm_content=DAGwDmy_bnM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-3. Supplementary Comprehensive Report: [AuraFit_AstroBugs.docx](https://docs.google.com/document/d/13vj1ibzpzgUd_aeFldWapiHs7x7Pdx3yajBTgnKVhQM/edit?usp=sharing)
-
-## 10. Team contributions
+## 9. Team contributions
 
 Our team's success was driven by a clear division of roles, allowing for rapid, parallel development of the app's complex components.
 
