@@ -12,10 +12,8 @@ Platform: Android (Kotlin)
 3. [System Architecture](#system-architecture)
 4. [UI](#UI)
 5. [Project Structure](#project-structure)
-6. [Setup and Installation](#setup-and-installation)
-7. [System Requirements](#system-requirements)
-8. [Engineering Decisions & Bottlenecks](#engineering-decisions--bottlenecks)
-9. [Submissions](#submissions)
+6. [System Requirements](#system-requirements)
+7. [Engineering Decisions & Bottlenecks](#engineering-decisions--bottlenecks)
 
 ## Overview
 Aurafit(watch) connects the Aurofit mobile device to the watch utilizing Samsung Health Data and Samsung Health Sensor. The idea behind this is to aid the Aurofit to give more accurate results and enabling smooth data integration.
@@ -54,6 +52,7 @@ This flow of software is very straight forward. Depending on the sensor it polls
 Displays basic data and derived sensor data which is available.
 
 ## 5. Project Structure
+```
 .
 ├── app
 │   ├── build.gradle.kts
@@ -71,8 +70,8 @@ Displays basic data and derived sensor data which is available.
 └── settings.gradle.kts
 
 2 directories, 12 files
-
-## 7. System Requirements
+```
+## 6. System Requirements
 - **IDE:**  
   [Android Studio Iguana (2023.2.1) or later](https://developer.android.com/studio)  
 
@@ -92,7 +91,7 @@ Displays basic data and derived sensor data which is available.
   Download the Samsung Health Sensor SDK (`samsung-health-sensor-api-1.4.1.aar`) here:[Samsung Health Sensor SDK](https://developer.samsung.com/health/sensor/guide/introduction.html)
   
 
-## 8. Engineering Decisions & Bottlenecks
+## 7. Engineering Decisions & Bottlenecks
 
 ### Bottleneck: Samsung Health SDK Integration
 
