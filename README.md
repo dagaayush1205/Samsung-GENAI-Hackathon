@@ -10,7 +10,7 @@ Platform: Android (Kotlin)
 1. [Overview](#overview)
 2. [Core Features](#core-features)
 3. [System Architecture](#system-architecture)
-4. [Tech Stack](#tech-stack)
+4. [UI](#UI)
 5. [Project Structure](#project-structure)
 6. [Setup and Installation](#setup-and-installation)
 7. [System Requirements](#system-requirements)
@@ -45,8 +45,13 @@ This collected data is transmitted to the mobile device for deeper analysis.
 ## 3. System Architecture
 <img width="1245" height="353" alt="Smart flowchart(1)" src="https://github.com/user-attachments/assets/e7e49f19-0eea-4bb6-b3f5-85686427df6c" />
 
-This flow of software is very straight forward. It either polls data from sensors or gets a continous set of data
-## 4. Tech Stack
+This flow of software is very straight forward. Depending on the sensor it polls data from sensors or gets a continous stream of data.
+
+## 4. UI
+<img width="450" height="450" alt="Screenshot_20250928_102855_samsunghackathon" src="https://github.com/user-attachments/assets/d882e093-4cc9-4852-836a-c6f014dea5ef" />
+<img width="450" height="450" alt="Screenshot_20250928_102907_samsunghackathon" src="https://github.com/user-attachments/assets/6afc6925-097e-4662-ac43-cf1652164dab" />
+
+Displays basic data and derived sensor data which is available.
 
 ## 5. Project Structure
 
