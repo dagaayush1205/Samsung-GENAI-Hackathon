@@ -43,7 +43,9 @@ This collected data is transmitted to the mobile device for deeper analysis.
 
   
 ## 3. System Architecture
+<img width="1245" height="353" alt="Smart flowchart(1)" src="https://github.com/user-attachments/assets/e7e49f19-0eea-4bb6-b3f5-85686427df6c" />
 
+This flow of software is very straight forward. It either polls data from sensors or gets a continous set of data
 ## 4. Tech Stack
 
 ## 5. Project Structure
