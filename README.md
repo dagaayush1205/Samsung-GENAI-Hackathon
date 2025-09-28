@@ -54,13 +54,54 @@ This flow of software is very straight forward. Depending on the sensor it polls
 Displays basic data and derived sensor data which is available.
 
 ## 5. Project Structure
+.
+├── app
+│   ├── build.gradle.kts
+│   ├── libs
+│   ├── lint.xml
+│   ├── proguard-rules.pro
+│   └── src
+├── build.gradle.kts
+├── gradle
+│   ├── libs.versions.toml
+│   └── wrapper
+├── gradlew
+├── gradlew.bat
+├── README.md
+└── settings.gradle.kts
 
-## 6. Setup and Installation
+2 directories, 12 files
 
 ## 7. System Requirements
+- **IDE:**  
+  [Android Studio Iguana (2023.2.1) or later](https://developer.android.com/studio)  
+
+- **Gradle JDK:**  
+  The project is configured to build with **JVM 17**.  
+  Ensure your Android Studio’s Gradle JDK is set to JDK 17 under:  
+  `File > Settings > Build, Execution, Deployment > Build Tools > Gradle`  
+  👉 [Download OpenJDK 17](https://adoptium.net/temurin/releases/?version=17)  
+
+- **Target Device:**  
+  A physical Android device running **API 29 (Android 10)** or higher.  
+  *(Required by Samsung Health SDK for biometric integration.)*  
+
+- **Samsung Health SDK:**  
+  Download the Samsung Health Data SDK (`samsung-health-data-api-1.0.0.aar`) here:  
+  🔗 [Samsung Health Data SDK](https://developer.samsung.com/health/android/data/overview.html)
+  Download the Samsung Health Sensor SDK (`samsung-health-sensor-api-1.4.1.aar`) here:[Samsung Health Sensor SDK](https://developer.samsung.com/health/sensor/guide/introduction.html)
+  
 
 ## 8. Engineering Decisions & Bottlenecks
 
-### Prerequisites
+### Bottleneck: Samsung Health SDK Integration
 
-### Steps
+- **Problem:** Samsung provides **multiple SDKs** (Data, Sensor, Accessory). Our initial attempt with the **Sensor SDK** led to build failures, unstable runtime behavior, and inconsistent API support.  
+- **Solution:** We pivoted to the **Samsung Health Data SDK**, which is robust and officially documented.  
+  - Built a modern **Kotlin-first `HealthDataManager.kt`** wrapper based on Samsung’s legacy Java examples.  
+  - Implementation is currently maintained in the dedicated **[`watch` branch](https://github.com/dagaayush1205/Samsung-GENAI-Hackathon/tree/watch)** (not `main`).  
+  - Achieved stable, reliable fetching of both **historical stats** and **live heart rate data** from the Galaxy Watch.  
+- **Outcome:** A clean, extensible integration that future-proofs wearable data collection.
+
+Made with Love <3 
+Team Astro Bugs (SRM IST, KTR)
