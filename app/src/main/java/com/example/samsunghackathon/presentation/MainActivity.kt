@@ -46,11 +46,18 @@ import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import com.example.samsunghackathon.presentation.theme.SamsungHackathonTheme
-import com.samsung.android.service.health.tracking.ConnectionListener
 import com.samsung.android.service.health.tracking.HealthTracker
 import com.samsung.android.service.health.tracking.HealthTrackingService
 import com.samsung.android.service.health.tracking.data.DataPoint
 import com.samsung.android.service.health.tracking.data.ValueKey
+import com.samsung.android.service.health.tracking.data.HealthTrackerType
+import com.samsung.android.service.health.tracking.HealthTrackerCapability
+import androidx.compose.foundation.layout.fillMaxWidth
+import com.samsung.android.service.health.tracking.data.ValueKey.EcgSet
+import androidx.compose.runtime.mutableStateListOf
+
+
+
 
 
 class MainActivity : ComponentActivity(), SensorEventListener {
