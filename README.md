@@ -1,4 +1,6 @@
 ## AuraFit: An On-Device, Multi-Modal AI Workout Coach
+The debug-apk and the release-apk is in the "releases" in our repo. To download it without any key, install the debug-apk. For production, we use the release apk.
+
 ### Status: Samsung PRISM GenAI Hackathon 2025 Submission
 Made by- Team Astro Bugs (SRM Institute of Science and Technology, KTR)
 
